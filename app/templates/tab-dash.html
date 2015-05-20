@@ -1,0 +1,49 @@
+<ion-view title="Dashboard">
+  <ion-content class="has-header padding">
+    <h1>Dash</h1>
+    <label class="item item-input">
+	  <span class="input-label">Run Name</span>
+	  <input type="text">
+	</label>
+	<div class="list">
+
+  <label class="item item-input item-select">
+    <div class="input-label">
+	Script Name
+    </div>
+    <select ng-model="selection.scriptName" ng-options="name as name for name in scriptNames">
+        <option value="">Nothing Selected</option>
+    </select>
+  </label>
+
+  <label class="item item-input item-select">
+    <div class="input-label">
+	Analyte
+    </div>
+    <select ng-model="selection.analyte" ng-options="analyte as analyte for analyte in analytes">
+        <option value="">Nothing Selected</option>
+    </select>
+  </label>
+
+  <label class="item item-input item-select">
+    <div class="input-label">
+      Type
+    </div>
+    <select ng-model="selection.type" ng-options="type as type for type in types">
+        <option value="">Nothing Selected</option>
+    </select>
+  </label>
+
+  <label class="item item-input item-select">
+    <div class="input-label">
+      ReagentPack
+    </div>
+    <select ng-model="selection.pack" ng-options="pack as pack for pack in reagentPacks">
+        <option value="">Nothing Selected</option>
+    </select>
+  </label>
+
+</div>
+
+  </ion-content>
+</ion-view>

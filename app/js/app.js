@@ -1,123 +1,84 @@
-'use strict';
+// Ionic Starter App
 
-var App = angular.module('App', ['ngRoute']);
+// angular.module is a global place for creating, registering and retrieving Angular modules
+// 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
+// the 2nd parameter is an array of 'requires'
+// 'starter.services' is found in services.js
+// 'starter.controllers' is found in controllers.js
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
 
-App.factory('myHttpInterceptor', function($rootScope, $q) {
-  return {
-    'requestError': function(config) {
-      $rootScope.status = 'HTTP REQUEST ERROR ' + config;
-      return config || $q.when(config);
-    },
-    'responseError': function(rejection) {
-      $rootScope.status = 'HTTP RESPONSE ERROR ' + rejection.status + '\n' +
-                          rejection.data;
-      return $q.reject(rejection);
-    },
-  };
-});
-
-App.factory('guestService', function($rootScope, $http, $q, $log) {
-  $rootScope.status = 'Retrieving data...';
-  var deferred = $q.defer();
-  $http.get('rest/query')
-  .success(function(data, status, headers, config) {
-    $rootScope.guests = data;
-    deferred.resolve();
-    $rootScope.status = '';
-  });
-  return deferred.promise;
-});
-
-App.config(function($routeProvider) {
-  $routeProvider.when('/', {
-    controller : 'MainCtrl',
-    templateUrl: '/partials/main.html',
-    resolve    : { 'guestService': 'guestService' },
-  });
-  $routeProvider.when('/invite', {
-    controller : 'InsertCtrl',
-    templateUrl: '/partials/insert.html',
-  });
-  $routeProvider.when('/update/:id', {
-    controller : 'UpdateCtrl',
-    templateUrl: '/partials/update.html',
-    resolve    : { 'guestService': 'guestService' },
-  });
-  $routeProvider.otherwise({
-    redirectTo : '/'
-  });
-});
-
-App.config(function($httpProvider) {
-  $httpProvider.interceptors.push('myHttpInterceptor');
-});
-
-App.controller('MainCtrl', function($scope, $rootScope, $log, $http, $routeParams, $location, $route) {
-
-  $scope.invite = function() {
-    $location.path('/invite');
-  };
-
-  $scope.update = function(guest) {
-    $location.path('/update/' + guest.id);
-  };
-
-  $scope.delete = function(guest) {
-    $rootScope.status = 'Deleting guest ' + guest.id + '...';
-    $http.post('/rest/delete', {'id': guest.id})
-    .success(function(data, status, headers, config) {
-      for (var i=0; i<$rootScope.guests.length; i++) {
-        if ($rootScope.guests[i].id == guest.id) {
-          $rootScope.guests.splice(i, 1);
-          break;
-        }
-      }
-      $rootScope.status = '';
-    });
-  };
-
-});
-
-App.controller('InsertCtrl', function($scope, $rootScope, $log, $http, $routeParams, $location, $route) {
-
-  $scope.submitInsert = function() {
-    var guest = {
-      first : $scope.first,
-      last : $scope.last, 
-    };
-    $rootScope.status = 'Creating...';
-    $http.post('/rest/insert', guest)
-    .success(function(data, status, headers, config) {
-      $rootScope.guests.push(data);
-      $rootScope.status = '';
-    });
-    $location.path('/');
-  }
-});
-
-App.controller('UpdateCtrl', function($routeParams, $rootScope, $scope, $log, $http, $location) {
-
-  for (var i=0; i<$rootScope.guests.length; i++) {
-    if ($rootScope.guests[i].id == $routeParams.id) {
-      $scope.guest = angular.copy($rootScope.guests[i]);
+.run(function($ionicPlatform) {
+  $ionicPlatform.ready(function() {
+    // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
+    // for form inputs)
+    if(window.cordova && window.cordova.plugins.Keyboard) {
+      cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
     }
-  }
+    if(window.StatusBar) {
+      // org.apache.cordova.statusbar required
+      StatusBar.styleDefault();
+    }
+  });
+})
 
-  $scope.submitUpdate = function() {
-    $rootScope.status = 'Updating...';
-    $http.post('/rest/update', $scope.guest)
-    .success(function(data, status, headers, config) {
-      for (var i=0; i<$rootScope.guests.length; i++) {
-        if ($rootScope.guests[i].id == $scope.guest.id) {
-          $rootScope.guests.splice(i,1);
-          break;
+.config(function($stateProvider, $urlRouterProvider) {
+
+  // Ionic uses AngularUI Router which uses the concept of states
+  // Learn more here: https://github.com/angular-ui/ui-router
+  // Set up the various states which the app can be in.
+  // Each state's controller can be found in controllers.js
+  $stateProvider
+
+    // setup an abstract state for the tabs directive
+    .state('tab', {
+      url: "/tab",
+      abstract: true,
+      templateUrl: "templates/tabs.html"
+    })
+
+    // Each tab has its own nav history stack:
+
+    .state('tab.dash', {
+      url: '/dash',
+      views: {
+        'tab-dash': {
+          templateUrl: 'templates/tab-dash.html',
+          controller: 'DashCtrl'
         }
       }
-      $rootScope.guests.push(data);
-      $rootScope.status = '';
+    })
+
+    .state('tab.friends', {
+      url: '/friends',
+      views: {
+        'tab-friends': {
+          templateUrl: 'templates/tab-friends.html',
+          controller: 'FriendsCtrl'
+        }
+      }
+    })
+    .state('tab.friend-detail', {
+      url: '/friend/:friendId',
+      views: {
+        'tab-friends': {
+          templateUrl: 'templates/friend-detail.html',
+          controller: 'FriendDetailCtrl'
+        }
+      }
+    })
+
+    .state('tab.account', {
+      url: '/account',
+      views: {
+        'tab-account': {
+          templateUrl: 'templates/tab-account.html',
+          controller: 'AccountCtrl'
+        }
+      }
     });
-    $location.path('/');
-  };
+
+  // if none of the above states are matched, use this as the fallback
+  $urlRouterProvider.otherwise('/tab/dash');
 
 });
 
